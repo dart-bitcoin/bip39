@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:resource/resource.dart' show Resource;
+import 'utils/pbkdf2.dart';
 
 const int _SIZE_BYTE = 255;
 const _INVALID_MNEMONIC = 'Invalid mnemonic';
@@ -20,9 +21,15 @@ String _bytesToBinary(Uint8List bytes) {
   return bytes.map((byte) => byte.toRadixString(2).padLeft(8, '0')).join('');
 }
 
-String _salt(String password) {
-  return 'mnemonic${password ?? ""}';
-}
+
+//Uint8List _createUint8ListFromString( String s ) {
+//  var ret = new Uint8List(s.length);
+//  for( var i=0 ; i<s.length ; i++ ) {
+//    ret[i] = s.codeUnitAt(i);
+//  }
+//  return ret;
+//}
+
 
 String _deriveChecksumBits(Uint8List entropy) {
   final ENT = entropy.length * 8;
@@ -70,6 +77,18 @@ Future<String> entropyToMnemonic(Uint8List entropy) async {
   String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
   return words;
 }
+Uint8List mnemonicToSeed(String mnemonic) {
+//  final mnemonicBuffer = utf8.encode(mnemonic);
+//  final saltBuffer = utf8.encode("mnemonic");
+  final pbkdf2 = new PBKDF2(salt: "mnemonic");
+  return pbkdf2.process(mnemonic);
+}
+String mnemonicToSeedHex(String mnemonic) {
+  return mnemonicToSeed(mnemonic).map((byte) {
+    return byte.toRadixString(16).padLeft(2, '0');
+  }).join('');
+}
+
 Future<List<String>> _loadWordList() async {
   final res = await new Resource('package:bip39/src/wordlists/english.json').readAsString();
   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
