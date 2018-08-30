@@ -10,6 +10,7 @@ environment:
 dependencies:
   resource: ^2.1.5
   pointycastle: ^1.0.0-rc2
+  hex: ^0.1.2
 #  path: ^1.4.1
 
 dev_dependencies:

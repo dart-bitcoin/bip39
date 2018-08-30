@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:hex/hex.dart';
 import 'package:resource/resource.dart' show Resource;
 import 'utils/pbkdf2.dart';
 
@@ -20,7 +21,6 @@ int _binaryToByte(String binary) {
 String _bytesToBinary(Uint8List bytes) {
   return bytes.map((byte) => byte.toRadixString(2).padLeft(8, '0')).join('');
 }
-
 
 //Uint8List _createUint8ListFromString( String s ) {
 //  var ret = new Uint8List(s.length);
@@ -53,9 +53,10 @@ Future<String> generateMnemonic({
 }) async {
   assert(strength % 32 == 0);
   final entropy = randomBytes(strength ~/ 8);
-  return await entropyToMnemonic(entropy);
+  return await entropyToMnemonic(HEX.encode(entropy));
 }
-Future<String> entropyToMnemonic(Uint8List entropy) async {
+Future<String> entropyToMnemonic(String entropyString) async {
+  final entropy = HEX.decode(entropyString);
   if (entropy.length < 16) {
     throw ArgumentError(_INVALID_ENTROPY);
   }
@@ -78,9 +79,7 @@ Future<String> entropyToMnemonic(Uint8List entropy) async {
   return words;
 }
 Uint8List mnemonicToSeed(String mnemonic) {
-//  final mnemonicBuffer = utf8.encode(mnemonic);
-//  final saltBuffer = utf8.encode("mnemonic");
-  final pbkdf2 = new PBKDF2(salt: "mnemonic");
+  final pbkdf2 = new PBKDF2();
   return pbkdf2.process(mnemonic);
 }
 String mnemonicToSeedHex(String mnemonic) {
@@ -88,7 +87,56 @@ String mnemonicToSeedHex(String mnemonic) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
+Future<bool> validateMnemonic(String mnemonic) async {
+  try {
+    await mnemonicToEntropy(mnemonic);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+Future<String> mnemonicToEntropy (mnemonic) async {
+  var words = mnemonic.split(' ');
+  if (words.length % 3 != 0) {
+    throw new ArgumentError(_INVALID_MNEMONIC);
+  }
+  final wordlist = await _loadWordList();
+    // convert word indices to 11 bit binary strings
+    final bits = words.map((word) {
+      final index = wordlist.indexOf(word);
+      if (index == -1) {
+        throw new ArgumentError(_INVALID_MNEMONIC);
+      }
+      return index.toRadixString(2).padLeft(11, '0');
+    }).join('');
+  // split the binary string into ENT/CS
+  final dividerIndex = (bits.length / 33).floor() * 32;
+  final entropyBits = bits.substring(0, dividerIndex);
+  final checksumBits = bits.substring(dividerIndex);
 
+    // calculate the checksum and compare
+  final regex = RegExp(r".{1,8}");
+  final entropyBytes = Uint8List.fromList(regex
+      .allMatches(entropyBits)
+      .map((match) => _binaryToByte(match.group(0)))
+      .toList(growable: false));
+  if (entropyBytes.length < 16) {
+    throw StateError(_INVALID_ENTROPY);
+  }
+  if (entropyBytes.length > 32) {
+    throw StateError(_INVALID_ENTROPY);
+  }
+  if (entropyBytes.length % 4 != 0) {
+    throw StateError(_INVALID_ENTROPY);
+  }
+  final newChecksum = _deriveChecksumBits(entropyBytes);
+  if (newChecksum != checksumBits) {
+    throw StateError(_INVALID_CHECKSUM);
+  }
+  return entropyBytes.map((byte) {
+    return byte.toRadixString(16).padLeft(2, '0');
+  }).join('');
+}
 Future<List<String>> _loadWordList() async {
   final res = await new Resource('package:bip39/src/wordlists/english.json').readAsString();
   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
