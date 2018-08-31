@@ -4,9 +4,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:hex/hex.dart';
-import 'package:resource/resource.dart' show Resource;
+// import 'package:resource/resource.dart' show Resource;
 import 'utils/pbkdf2.dart';
-
+import 'wordlists/english.dart';
 const int _SIZE_BYTE = 255;
 const _INVALID_MNEMONIC = 'Invalid mnemonic';
 const _INVALID_ENTROPY = 'Invalid entropy';
@@ -74,7 +74,7 @@ Future<String> entropyToMnemonic(String entropyString) async {
       .allMatches(bits)
       .map((match) => match.group(0))
       .toList(growable: false);
-  List<String> wordlist = await _loadWordList();
+  List<String> wordlist = WORDLIST;
   String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
   return words;
 }
@@ -100,7 +100,7 @@ Future<String> mnemonicToEntropy (mnemonic) async {
   if (words.length % 3 != 0) {
     throw new ArgumentError(_INVALID_MNEMONIC);
   }
-  final wordlist = await _loadWordList();
+  final wordlist = WORDLIST;
     // convert word indices to 11 bit binary strings
     final bits = words.map((word) {
       final index = wordlist.indexOf(word);
@@ -137,8 +137,8 @@ Future<String> mnemonicToEntropy (mnemonic) async {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-Future<List<String>> _loadWordList() async {
-  final res = await new Resource('package:bip39/src/wordlists/english.json').readAsString();
-  List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
-  return words;
-}
+// Future<List<String>> _loadWordList() async {
+//   final res = await new Resource('package:bip39/src/wordlists/english.json').readAsString();
+//   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
+//   return words;
+// }
