@@ -39,18 +39,18 @@ import 'package:bip39/bip39.dart' as bip39;
 main() {
     // Only support BIP39 English word list
     // uses HEX strings for entropy
-    String randomMnemonic = await generateMnemonic();
+    String randomMnemonic = await bip39.generateMnemonic();
 
-    String seed = mnemonicToSeedHex("update elbow source spin squeeze horror world become oak assist bomb nuclear");
+    String seed = bip39.mnemonicToSeedHex("update elbow source spin squeeze horror world become oak assist bomb nuclear");
     // => '77e6a9b1236d6b53eaa64e2727b5808a55ce09eb899e1938ed55ef5d4f8153170a2c8f4674eb94ce58be7b75922e48e6e56582d806253bd3d72f4b3d896738a4'
     
-    String mnemonic = await entropyToMnemonic('00000000000000000000000000000000');
+    String mnemonic = await bip39.entropyToMnemonic('00000000000000000000000000000000');
     // => 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
     
-    bool isValid = await validateMnemonic(mnemonic);
+    bool isValid = await bip39.validateMnemonic(mnemonic);
     // => true
     
-    isValid = await validateMnemonic('basket actual');
+    isValid = await bip39.validateMnemonic('basket actual');
     // => false
     
     String entropy = bip39.mnemonicToEntropy(mnemonic)
