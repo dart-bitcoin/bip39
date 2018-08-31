@@ -8,7 +8,7 @@ environment:
   sdk: '>=2.0.0-dev.58.0 <3.0.0'
 
 dependencies:
-  resource: ^2.1.5
+  resource: ^2.1.4
   pointycastle: ^1.0.0-rc2
   hex: ^0.1.2
 #  path: ^1.4.1
