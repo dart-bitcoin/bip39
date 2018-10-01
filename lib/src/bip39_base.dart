@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
 import 'dart:convert';
-import 'package:hex/hex.dart';
+import 'package:crypto/crypto.dart' show sha256;
+import 'package:hex/hex.dart' show HEX;
 import 'package:resource/resource.dart' show Resource;
 import 'utils/pbkdf2.dart';
 
