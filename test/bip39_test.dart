@@ -19,6 +19,7 @@ void main() {
       try {
         expect(bip39.entropyToMnemonic(''), throwsArgumentError);
       } catch(err) {
+        expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
 
@@ -26,6 +27,7 @@ void main() {
       try {
         expect(bip39.entropyToMnemonic('000000'), throwsArgumentError);
       } catch(err) {
+        expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
 
@@ -33,6 +35,7 @@ void main() {
       try {
         expect(bip39.entropyToMnemonic(Uint8List(1028 + 1).join('00')), throwsArgumentError);
       } catch(err) {
+        expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
   });
