@@ -45,15 +45,15 @@ Uint8List _randomBytes(int size) {
   }
   return bytes;
 }
-Future<String> generateMnemonic({
+String generateMnemonic({
   int strength = 128,
   RandomBytes randomBytes = _randomBytes
-}) async {
+}) {
   assert(strength % 32 == 0);
   final entropy = randomBytes(strength ~/ 8);
-  return await entropyToMnemonic(HEX.encode(entropy));
+  return entropyToMnemonic(HEX.encode(entropy));
 }
-Future<String> entropyToMnemonic(String entropyString) async {
+String entropyToMnemonic(String entropyString) {
   final entropy = HEX.decode(entropyString);
   if (entropy.length < 16) {
     throw ArgumentError(_INVALID_ENTROPY);
@@ -85,15 +85,15 @@ String mnemonicToSeedHex(String mnemonic) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-Future<bool> validateMnemonic(String mnemonic) async {
+bool validateMnemonic(String mnemonic) {
   try {
-    await mnemonicToEntropy(mnemonic);
+    mnemonicToEntropy(mnemonic);
   } catch (e) {
     return false;
   }
   return true;
 }
-Future<String> mnemonicToEntropy (mnemonic) async {
+String mnemonicToEntropy (mnemonic) {
   var words = mnemonic.split(' ');
   if (words.length % 3 != 0) {
     throw new ArgumentError(_INVALID_MNEMONIC);
@@ -135,8 +135,8 @@ Future<String> mnemonicToEntropy (mnemonic) async {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-// Future<List<String>> _loadWordList() async {
-//   final res = await new Resource('package:bip39/src/wordlists/english.json').readAsString();
+// List<String>> _loadWordList() {
+//   final res = new Resource('package:bip39/src/wordlists/english.json').readAsString();
 //   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
 //   return words;
 // }
