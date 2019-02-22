@@ -55,7 +55,7 @@ String generateMnemonic({
 }
 String entropyToMnemonic(String entropyString) {
   final entropy = HEX.decode(entropyString);
-  if (entropy.length < 16) {
+  if (entropy.length < 4) {
     throw ArgumentError(_INVALID_ENTROPY);
   }
   if (entropy.length > 32) {
@@ -118,7 +118,7 @@ String mnemonicToEntropy (mnemonic) {
       .allMatches(entropyBits)
       .map((match) => _binaryToByte(match.group(0)))
       .toList(growable: false));
-  if (entropyBytes.length < 16) {
+  if (entropyBytes.length < 4) {
     throw StateError(_INVALID_ENTROPY);
   }
   if (entropyBytes.length > 32) {
