@@ -1,4 +1,4 @@
-const WORDLIST = [
+const List<String> WORDLIST = [
   "abandon",
   "ability",
   "able",
