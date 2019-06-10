@@ -14,7 +14,6 @@ const int _SIZE_BYTE = 255;
 const _INVALID_MNEMONIC = 'Invalid mnemonic';
 const _INVALID_ENTROPY = 'Invalid entropy';
 const _INVALID_CHECKSUM = 'Invalid mnemonic checksum';
-const _INVALID_LANG_NAME = 'Invalid lang name';
 
 typedef Uint8List RandomBytes(int size);
 
@@ -156,13 +155,4 @@ List<String> _loadWordList(String lang) {
     default:
       return en;
   }
-  // final langData =
-  //     await new Resource('package:bip39/src/wordlists/${lang}.json')
-  //         .readAsString();
-  // if (langData == "") {
-  //   throw new ArgumentError(_INVALID_LANG_NAME);
-  // }
-  // List<String> words =
-  //     (json.encode(langData) as List).map((e) => e.toString()).toList();
-  // return words;
 }
