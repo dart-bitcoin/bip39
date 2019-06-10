@@ -4,11 +4,17 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:hex/hex.dart';
 import 'utils/pbkdf2.dart';
-import 'wordlists/english.dart';
+import 'package:resource/resource.dart';
+import 'dart:convert';
+
+import 'wordlists/en.dart';
+import 'wordlists/zh_cn.dart';
+
 const int _SIZE_BYTE = 255;
 const _INVALID_MNEMONIC = 'Invalid mnemonic';
 const _INVALID_ENTROPY = 'Invalid entropy';
 const _INVALID_CHECKSUM = 'Invalid mnemonic checksum';
+const _INVALID_LANG_NAME = 'Invalid lang name';
 
 typedef Uint8List RandomBytes(int size);
 
@@ -28,14 +34,12 @@ String _bytesToBinary(Uint8List bytes) {
 //  return ret;
 //}
 
-
 String _deriveChecksumBits(Uint8List entropy) {
   final ENT = entropy.length * 8;
   final CS = ENT ~/ 32;
   final hash = sha256.newInstance().convert(entropy);
   return _bytesToBinary(Uint8List.fromList(hash.bytes)).substring(0, CS);
 }
-
 
 Uint8List _randomBytes(int size) {
   final rng = Random.secure();
@@ -45,15 +49,18 @@ Uint8List _randomBytes(int size) {
   }
   return bytes;
 }
+
 String generateMnemonic({
   int strength = 128,
-  RandomBytes randomBytes = _randomBytes
+  RandomBytes randomBytes = _randomBytes,
+  String lang = "en",
 }) {
   assert(strength % 32 == 0);
   final entropy = randomBytes(strength ~/ 8);
-  return entropyToMnemonic(HEX.encode(entropy));
+  return entropyToMnemonic(HEX.encode(entropy), lang: lang);
 }
-String entropyToMnemonic(String entropyString) {
+
+String entropyToMnemonic(String entropyString, {String lang = 'en'}) {
   final entropy = HEX.decode(entropyString);
   if (entropy.length < 16) {
     throw ArgumentError(_INVALID_ENTROPY);
@@ -72,47 +79,52 @@ String entropyToMnemonic(String entropyString) {
       .allMatches(bits)
       .map((match) => match.group(0))
       .toList(growable: false);
-  List<String> wordlist = WORDLIST;
-  String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
+  List<String> wordlist = _loadWordList(lang);
+  String words =
+      chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
   return words;
 }
+
 Uint8List mnemonicToSeed(String mnemonic) {
   final pbkdf2 = new PBKDF2();
   return pbkdf2.process(mnemonic);
 }
+
 String mnemonicToSeedHex(String mnemonic) {
   return mnemonicToSeed(mnemonic).map((byte) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-bool validateMnemonic(String mnemonic) {
+
+bool validateMnemonic(String mnemonic, {String lang = 'en'}) {
   try {
-    mnemonicToEntropy(mnemonic);
+    mnemonicToEntropy(mnemonic, lang: lang);
   } catch (e) {
     return false;
   }
   return true;
 }
-String mnemonicToEntropy (mnemonic) {
+
+String mnemonicToEntropy(mnemonic, {String lang = 'en'}) {
   var words = mnemonic.split(' ');
   if (words.length % 3 != 0) {
     throw new ArgumentError(_INVALID_MNEMONIC);
   }
-  final wordlist = WORDLIST;
-    // convert word indices to 11 bit binary strings
-    final bits = words.map((word) {
-      final index = wordlist.indexOf(word);
-      if (index == -1) {
-        throw new ArgumentError(_INVALID_MNEMONIC);
-      }
-      return index.toRadixString(2).padLeft(11, '0');
-    }).join('');
+  final wordlist = _loadWordList(lang);
+  // convert word indices to 11 bit binary strings
+  final bits = words.map((word) {
+    final index = wordlist.indexOf(word);
+    if (index == -1) {
+      throw new ArgumentError(_INVALID_MNEMONIC);
+    }
+    return index.toRadixString(2).padLeft(11, '0');
+  }).join('');
   // split the binary string into ENT/CS
   final dividerIndex = (bits.length / 33).floor() * 32;
   final entropyBits = bits.substring(0, dividerIndex);
   final checksumBits = bits.substring(dividerIndex);
 
-    // calculate the checksum and compare
+  // calculate the checksum and compare
   final regex = RegExp(r".{1,8}");
   final entropyBytes = Uint8List.fromList(regex
       .allMatches(entropyBits)
@@ -135,8 +147,22 @@ String mnemonicToEntropy (mnemonic) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-// List<String>> _loadWordList() {
-//   final res = new Resource('package:bip39/src/wordlists/english.json').readAsString();
-//   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
-//   return words;
-// }
+
+List<String> _loadWordList(String lang) {
+  switch (lang) {
+    case 'zh_cn':
+      return zh_cn;
+      break;
+    default:
+      return en;
+  }
+  // final langData =
+  //     await new Resource('package:bip39/src/wordlists/${lang}.json')
+  //         .readAsString();
+  // if (langData == "") {
+  //   throw new ArgumentError(_INVALID_LANG_NAME);
+  // }
+  // List<String> words =
+  //     (json.encode(langData) as List).map((e) => e.toString()).toList();
+  // return words;
+}
