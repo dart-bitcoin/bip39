@@ -34,7 +34,7 @@ bip39.validateMnemonic('basket actual')
 
 
 ``` dart
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip39_multi/bip39_multi.dart' as bip39;
 
 main() {
     // Only support BIP39 English word list
