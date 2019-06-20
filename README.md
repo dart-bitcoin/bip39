@@ -1,4 +1,4 @@
-# BIP39
+# BIP39_MULTI
 
 Dart implementation of [Bitcoin BIP39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki): Mnemonic code for generating deterministic keys
 
@@ -53,7 +53,7 @@ main() {
     isValid = await bip39.validateMnemonic('basket actual');
     // => false
     
-    String entropy = bip39.mnemonicToEntropy(mnemonic)
+    String entropy = bip39.mnemonicToEntropy(mnemonic);
     // => String '00000000000000000000000000000000'
 }
 ```

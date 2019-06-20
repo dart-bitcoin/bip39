@@ -9,3 +9,9 @@
 ## 1.0.3
 
 - Remove async function
+
+
+## 1.0.4
+
+-forked from bip39
+-added multi lingual support and languages
