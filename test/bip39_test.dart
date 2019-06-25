@@ -89,6 +89,7 @@ void testVector(List<dynamic> v, int i) {
   final ventropy = v[0];
   final vmnemonic = v[1];
   final vseedHex = v[2];
+  final passphrase = v.length > 3 ? v[3] : '';
   group('for English(${i}), ${ventropy}', () {
     setUp(() {});
     test('mnemoic to entropy', () {
@@ -96,7 +97,7 @@ void testVector(List<dynamic> v, int i) {
       expect(entropy, equals(ventropy));
     });
     test('mnemonic to seed hex', () {
-      final seedHex = bip39.mnemonicToSeedHex(vmnemonic);
+      final seedHex = bip39.mnemonicToSeedHex(vmnemonic, passphrase: passphrase);
       expect(seedHex, equals(vseedHex));
     });
     test('entropy to mnemonic', () {
