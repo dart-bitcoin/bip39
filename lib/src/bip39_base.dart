@@ -76,8 +76,8 @@ String entropyToMnemonic(String entropyString) {
   String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
   return words;
 }
-Uint8List mnemonicToSeed(String mnemonic) {
-  final pbkdf2 = new PBKDF2();
+Uint8List mnemonicToSeed(String mnemonic, {salt="mnemonic"}) {
+  final pbkdf2 = new PBKDF2(salt: salt);
   return pbkdf2.process(mnemonic);
 }
 String mnemonicToSeedHex(String mnemonic) {
