@@ -96,7 +96,7 @@ void testVector(List<dynamic> v, int i) {
       expect(entropy, equals(ventropy));
     });
     test('mnemonic to seed hex', () {
-      final seedHex = bip39.mnemonicToSeedHex(vmnemonic);
+      final seedHex = bip39.mnemonicToSeedHex(vmnemonic, passphrase: "TREZOR");
       expect(seedHex, equals(vseedHex));
     });
     test('entropy to mnemonic', () {
