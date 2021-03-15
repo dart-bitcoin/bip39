@@ -10,6 +10,6 @@ environment:
 dependencies:
   pointycastle: ^2.0.0
   hex: ^0.1.2
-  crypto: ^2.0.3
+  crypto: ^3.0.0
 dev_dependencies:
   test: ^1.0.0
