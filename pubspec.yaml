@@ -1,11 +1,11 @@
 name: bip39
 description: Dart implementation of Bitcoin BIP39 Mnemonic code for generating deterministic keys
-version: 1.0.4
+version: 1.0.5
 homepage: https://github.com/anicdh/bip39
 author: anicdh <email@example.com>
 
 environment:
-  sdk: '>=2.0.0-dev.58.0 <3.0.0'
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
 dependencies:
   pointycastle: ^2.0.0
