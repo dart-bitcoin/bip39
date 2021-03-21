@@ -1,8 +1,9 @@
-import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:hex/hex.dart';
+
 import 'utils/pbkdf2.dart';
 import 'wordlists/english.dart';
 
@@ -53,7 +54,7 @@ String generateMnemonic(
 }
 
 String entropyToMnemonic(String entropyString) {
-  final entropy = HEX.decode(entropyString);
+  final entropy = Uint8List.fromList(HEX.decode(entropyString));
   if (entropy.length < 16) {
     throw ArgumentError(_INVALID_ENTROPY);
   }
@@ -69,7 +70,7 @@ String entropyToMnemonic(String entropyString) {
   final regex = new RegExp(r".{1,11}", caseSensitive: false, multiLine: false);
   final chunks = regex
       .allMatches(bits)
-      .map((match) => match.group(0))
+      .map((match) => match.group(0)!)
       .toList(growable: false);
   List<String> wordlist = WORDLIST;
   String words =
@@ -120,7 +121,7 @@ String mnemonicToEntropy(mnemonic) {
   final regex = RegExp(r".{1,8}");
   final entropyBytes = Uint8List.fromList(regex
       .allMatches(entropyBits)
-      .map((match) => _binaryToByte(match.group(0)))
+      .map((match) => _binaryToByte(match.group(0)!))
       .toList(growable: false));
   if (entropyBytes.length < 16) {
     throw StateError(_INVALID_ENTROPY);
