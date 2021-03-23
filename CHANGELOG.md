@@ -9,3 +9,7 @@
 ## 1.0.3
 
 - Remove async function
+
+## 1.0.6
+
+- Resolved nullsafety code issues
