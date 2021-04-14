@@ -57,7 +57,7 @@ String generateMnemonic({
   return entropyToMnemonic(HEX.encode(entropy),language: language);
 }
 String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}) {
-  final entropy = HEX.decode(entropyString);
+  final entropy = Uint8List.fromList(HEX.decode(entropyString));
   if (entropy.length < 4) {
     throw ArgumentError(_INVALID_ENTROPY);
   }
@@ -73,7 +73,7 @@ String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}
   final regex = new RegExp(r".{1,11}", caseSensitive: false, multiLine: false);
   final chunks = regex
       .allMatches(bits)
-      .map((match) => match.group(0))
+      .map((match) => match.group(0)!)
       .toList(growable: false);
   List<String> wordlist = WORDLIST[language];
   String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
@@ -119,7 +119,7 @@ String mnemonicToEntropy (mnemonic,{String language=_defaultLanguage}) {
   final regex = RegExp(r".{1,8}");
   final entropyBytes = Uint8List.fromList(regex
       .allMatches(entropyBits)
-      .map((match) => _binaryToByte(match.group(0)))
+      .map((match) => _binaryToByte(match.group(0)!))
       .toList(growable: false));
   if (entropyBytes.length < 4) {
     throw StateError(_INVALID_ENTROPY);
