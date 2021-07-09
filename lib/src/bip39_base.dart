@@ -12,7 +12,7 @@ const _INVALID_MNEMONIC = 'Invalid mnemonic';
 const _INVALID_ENTROPY = 'Invalid entropy';
 const _INVALID_CHECKSUM = 'Invalid mnemonic checksum';
 
-typedef Uint8List RandomBytes(int size);
+typedef RandomBytes = Uint8List Function(int size);
 
 int _binaryToByte(String binary) {
   return int.parse(binary, radix: 2);
@@ -21,14 +21,6 @@ int _binaryToByte(String binary) {
 String _bytesToBinary(Uint8List bytes) {
   return bytes.map((byte) => byte.toRadixString(2).padLeft(8, '0')).join('');
 }
-
-//Uint8List _createUint8ListFromString( String s ) {
-//  var ret = new Uint8List(s.length);
-//  for( var i=0 ; i<s.length ; i++ ) {
-//    ret[i] = s.codeUnitAt(i);
-//  }
-//  return ret;
-//}
 
 String _deriveChecksumBits(Uint8List entropy) {
   final ENT = entropy.length * 8;
@@ -67,23 +59,23 @@ String entropyToMnemonic(String entropyString) {
   final entropyBits = _bytesToBinary(entropy);
   final checksumBits = _deriveChecksumBits(entropy);
   final bits = entropyBits + checksumBits;
-  final regex = new RegExp(r".{1,11}", caseSensitive: false, multiLine: false);
+  final regex = RegExp(r'.{1,11}', caseSensitive: false, multiLine: false);
   final chunks = regex
       .allMatches(bits)
       .map((match) => match.group(0)!)
       .toList(growable: false);
-  List<String> wordlist = WORDLIST;
-  String words =
-      chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
+  var wordlist = WORDLIST;
+  var words =
+  chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
   return words;
 }
 
-Uint8List mnemonicToSeed(String mnemonic, {String passphrase = ""}) {
-  final pbkdf2 = new PBKDF2();
+Uint8List mnemonicToSeed(String mnemonic, {String passphrase = ''}) {
+  final pbkdf2 = PBKDF2();
   return pbkdf2.process(mnemonic, passphrase: passphrase);
 }
 
-String mnemonicToSeedHex(String mnemonic, {String passphrase = ""}) {
+String mnemonicToSeedHex(String mnemonic, {String passphrase = ''}) {
   return mnemonicToSeed(mnemonic, passphrase: passphrase).map((byte) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
@@ -101,14 +93,14 @@ bool validateMnemonic(String mnemonic) {
 String mnemonicToEntropy(mnemonic) {
   var words = mnemonic.split(' ');
   if (words.length % 3 != 0) {
-    throw new ArgumentError(_INVALID_MNEMONIC);
+    throw ArgumentError(_INVALID_MNEMONIC);
   }
   final wordlist = WORDLIST;
   // convert word indices to 11 bit binary strings
   final bits = words.map((word) {
-    final index = wordlist.indexOf(word);
+    final index = wordlist.indexOf(word.toString());
     if (index == -1) {
-      throw new ArgumentError(_INVALID_MNEMONIC);
+      throw ArgumentError(_INVALID_MNEMONIC);
     }
     return index.toRadixString(2).padLeft(11, '0');
   }).join('');
@@ -118,9 +110,9 @@ String mnemonicToEntropy(mnemonic) {
   final checksumBits = bits.substring(dividerIndex);
 
   // calculate the checksum and compare
-  final regex = RegExp(r".{1,8}");
+  final regex = RegExp(r'.{1,8}');
   final entropyBytes = Uint8List.fromList(regex
-      .allMatches(entropyBits)
+      .allMatches(entropyBits.toString())
       .map((match) => _binaryToByte(match.group(0)!))
       .toList(growable: false));
   if (entropyBytes.length < 16) {
@@ -140,8 +132,3 @@ String mnemonicToEntropy(mnemonic) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
-// List<String>> _loadWordList() {
-//   final res = new Resource('package:bip39/src/wordlists/english.json').readAsString();
-//   List<String> words = (json.decode(res) as List).map((e) => e.toString()).toList();
-//   return words;
-// }

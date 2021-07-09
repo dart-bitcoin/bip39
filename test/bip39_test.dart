@@ -7,12 +7,12 @@ import 'package:hex/hex.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Map<String, dynamic> vectors =
-      json.decode(File('./test/vectors.json').readAsStringSync(encoding: utf8));
+  var vectors =
+      json.decode(File('./test/vectors.json').readAsStringSync(encoding: utf8)) as Map<String, dynamic>;
 
-  int i = 0;
+  var i = 0;
   (vectors['english'] as List<dynamic>).forEach((list) {
-    testVector(list, i);
+    testVector(list as List<dynamic>, i);
     i++;
   });
   group('invalid entropy', () {
@@ -20,7 +20,7 @@ void main() {
       try {
         expect(bip39.entropyToMnemonic(''), throwsArgumentError);
       } catch (err) {
-        expect((err as ArgumentError).message, "Invalid entropy");
+        expect((err as ArgumentError).message, 'Invalid entropy');
       }
     });
 
@@ -28,7 +28,7 @@ void main() {
       try {
         expect(bip39.entropyToMnemonic('000000'), throwsArgumentError);
       } catch (err) {
-        expect((err as ArgumentError).message, "Invalid entropy");
+        expect((err as ArgumentError).message, 'Invalid entropy');
       }
     });
 
@@ -37,7 +37,7 @@ void main() {
         expect(bip39.entropyToMnemonic(Uint8List(1028 + 1).join('00')),
             throwsArgumentError);
       } catch (err) {
-        expect((err as ArgumentError).message, "Invalid entropy");
+        expect((err as ArgumentError).message, 'Invalid entropy');
       }
     });
   });
@@ -86,17 +86,17 @@ void main() {
 }
 
 void testVector(List<dynamic> v, int i) {
-  final ventropy = v[0];
-  final vmnemonic = v[1];
+  final ventropy = v[0].toString();
+  final vmnemonic = v[1].toString();
   final vseedHex = v[2];
-  group('for English(${i}), ${ventropy}', () {
+  group('for English($i), $ventropy', () {
     setUp(() {});
     test('mnemoic to entropy', () {
-      final String entropy = bip39.mnemonicToEntropy(vmnemonic);
+      final entropy = bip39.mnemonicToEntropy(vmnemonic);
       expect(entropy, equals(ventropy));
     });
     test('mnemonic to seed hex', () {
-      final seedHex = bip39.mnemonicToSeedHex(vmnemonic, passphrase: "TREZOR");
+      final seedHex = bip39.mnemonicToSeedHex(vmnemonic, passphrase: 'TREZOR');
       expect(seedHex, equals(vseedHex));
     });
     test('entropy to mnemonic', () {
@@ -104,7 +104,7 @@ void testVector(List<dynamic> v, int i) {
       expect(code, equals(vmnemonic));
     });
     test('generate mnemonic', () {
-      bip39.RandomBytes randomBytes = (int size) {
+      var randomBytes = (int size) {
         return Uint8List.fromList(HEX.decode(ventropy));
       };
       final code = bip39.generateMnemonic(randomBytes: randomBytes);
