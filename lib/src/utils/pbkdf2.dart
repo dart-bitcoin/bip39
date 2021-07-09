@@ -10,22 +10,21 @@ class PBKDF2 {
   final int blockLength;
   final int iterationCount;
   final int desiredKeyLength;
-  final String saltPrefix = "mnemonic";
+  final String saltPrefix = 'mnemonic';
 
-  PBKDF2KeyDerivator _derivator;
+  final PBKDF2KeyDerivator _derivator;
 
   PBKDF2({
     this.blockLength = 128,
     this.iterationCount = 2048,
     this.desiredKeyLength = 64,
-  }) : _derivator =
-            new PBKDF2KeyDerivator(new HMac(new SHA512Digest(), blockLength));
+  }) : _derivator = PBKDF2KeyDerivator(HMac(SHA512Digest(), blockLength));
 
-  Uint8List process(String mnemonic, {passphrase: ""}) {
-    final salt = Uint8List.fromList(utf8.encode(saltPrefix + passphrase));
+  Uint8List process(String mnemonic, {passphrase = ''}) {
+    final salt =
+        Uint8List.fromList(utf8.encode(saltPrefix + passphrase.toString()));
     _derivator.reset();
-    _derivator
-        .init(new Pbkdf2Parameters(salt, iterationCount, desiredKeyLength));
-    return _derivator.process(new Uint8List.fromList(mnemonic.codeUnits));
+    _derivator.init(Pbkdf2Parameters(salt, iterationCount, desiredKeyLength));
+    return _derivator.process(Uint8List.fromList(mnemonic.codeUnits));
   }
 }
