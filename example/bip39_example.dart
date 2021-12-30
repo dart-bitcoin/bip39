@@ -1,9 +1,10 @@
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:bip39_multi_nullsafety/bip39_multi_nullsafety.dart' as bip39;
 
 main() async {
   String randomMnemonic = bip39.generateMnemonic();
   print(randomMnemonic);
-  String seed = bip39.mnemonicToSeedHex("update elbow source spin squeeze horror world become oak assist bomb nuclear");
+  String seed = bip39.mnemonicToSeedHex(
+      "update elbow source spin squeeze horror world become oak assist bomb nuclear");
   print(seed);
   String mnemonic = bip39.entropyToMnemonic('00000000000000000000000000000000');
   print(mnemonic);

@@ -1,14 +1,13 @@
-name: bip39
-description: Dart implementation of Bitcoin BIP39 Mnemonic code for generating deterministic keys
-version: 1.0.6
-homepage: https://github.com/anicdh/bip39
-author: anicdh <email@example.com>
+name: bip39_multi_nullsafety
+description: Dart multilingual implementation of Bitcoin BIP39 Mnemonic code for generating deterministic keys
+version: 1.0.7
+homepage: https://github.com/poka-IT/bip39.git
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  pointycastle: ^3.0.0-nullsafety.2
+  pointycastle: ^3.4.0
   hex: ^0.2.0
   crypto: ^3.0.0
 dev_dependencies:
