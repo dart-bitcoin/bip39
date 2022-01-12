@@ -11,6 +11,6 @@ dependencies:
   pointycastle: ^3.0.0-nullsafety.2
   hex: ^0.2.0
   crypto: ^3.0.0
-
+  
 dev_dependencies:
   test: ^1.0.0

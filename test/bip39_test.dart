@@ -1,13 +1,13 @@
 import 'dart:convert';
-import 'package:hex/hex.dart';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:hex/hex.dart';
 import 'package:bip39_multi/bip39_multi.dart' as bip39;
 import 'package:test/test.dart';
 
 void main() {
   Map<String, dynamic> vectors =
-  json.decode(File('./test/vectors.json').readAsStringSync(encoding: utf8));
+      json.decode(File('./test/vectors.json').readAsStringSync(encoding: utf8));
 
   int i = 0;
   (vectors['english'] as List<dynamic>).forEach((list) {
@@ -18,7 +18,7 @@ void main() {
     test('throws for empty entropy', () {
       try {
         expect(bip39.entropyToMnemonic(''), throwsArgumentError);
-      } catch(err) {
+      } catch (err) {
         expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
@@ -26,15 +26,16 @@ void main() {
     test('throws for entropy that\'s not a multitude of 4 bytes', () {
       try {
         expect(bip39.entropyToMnemonic('000000'), throwsArgumentError);
-      } catch(err) {
+      } catch (err) {
         expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
 
     test('throws for entropy that is larger than 1024', () {
       try {
-        expect(bip39.entropyToMnemonic(Uint8List(1028 + 1).join('00')), throwsArgumentError);
-      } catch(err) {
+        expect(bip39.entropyToMnemonic(Uint8List(1028 + 1).join('00')),
+            throwsArgumentError);
+      } catch (err) {
         expect((err as ArgumentError).message, "Invalid entropy");
       }
     });
@@ -43,8 +44,7 @@ void main() {
     expect(bip39.validateMnemonic('sleep kitten'), isFalse,
         reason: 'fails for a mnemonic that is too short');
 
-    expect(
-        bip39.validateMnemonic('sleep kitten sleep kitten sleep kitten'),
+    expect(bip39.validateMnemonic('sleep kitten sleep kitten sleep kitten'),
         isFalse,
         reason: 'fails for a mnemonic that is too short');
 
@@ -73,15 +73,14 @@ void main() {
           reason: 'can vary generated entropy bit length');
     });
 
-    test('requests the exact amount of data from an RNG',
-            () {
-          bip39.generateMnemonic(
-              strength: 160,
-              randomBytes: (int size) {
-                expect(size, 160 / 8);
-                return Uint8List(size);
-              });
-        });
+    test('requests the exact amount of data from an RNG', () {
+      bip39.generateMnemonic(
+          strength: 160,
+          randomBytes: (int size) {
+            expect(size, 160 / 8);
+            return Uint8List(size);
+          });
+    });
   });
 }
 
@@ -96,7 +95,7 @@ void testVector(List<dynamic> v, int i) {
       expect(entropy, equals(ventropy));
     });
     test('mnemonic to seed hex', () {
-      final seedHex = bip39.mnemonicToSeedHex(vmnemonic);
+      final seedHex = bip39.mnemonicToSeedHex(vmnemonic, passphrase: "TREZOR");
       expect(seedHex, equals(vseedHex));
     });
     test('entropy to mnemonic', () {
@@ -105,10 +104,11 @@ void testVector(List<dynamic> v, int i) {
     });
     test('generate mnemonic', () {
       bip39.RandomBytes randomBytes = (int size) {
-        return HEX.decode(ventropy);
+        return Uint8List.fromList(HEX.decode(ventropy));
       };
       final code = bip39.generateMnemonic(randomBytes: randomBytes);
-      expect(code, equals(vmnemonic), reason: 'generateMnemonic returns randomBytes entropy unmodified');
+      expect(code, equals(vmnemonic),
+          reason: 'generateMnemonic returns randomBytes entropy unmodified');
     });
     test('validate mnemonic', () {
       expect(bip39.validateMnemonic(vmnemonic), isTrue,

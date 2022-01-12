@@ -10,8 +10,6 @@
 
 - Remove async function
 
+## 1.0.6
 
-## 1.0.4
-
--forked from bip39
--added multi lingual support and languages
+- Resolved nullsafety code issues

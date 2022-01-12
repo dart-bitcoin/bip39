@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:pointycastle/digests/sha512.dart';
 import 'package:pointycastle/key_derivators/api.dart' show Pbkdf2Parameters;
 import 'package:pointycastle/key_derivators/pbkdf2.dart';
@@ -9,21 +10,22 @@ class PBKDF2 {
   final int blockLength;
   final int iterationCount;
   final int desiredKeyLength;
+  final String saltPrefix = "mnemonic";
 
   PBKDF2KeyDerivator _derivator;
-  Uint8List _salt;
 
-  PBKDF2({this.blockLength = 128,
-          this.iterationCount = 2048,
-          this.desiredKeyLength = 64,
-          String salt = "mnemonic"}) {
-    _salt = utf8.encode(salt);
-    _derivator =
-    new PBKDF2KeyDerivator(new HMac(new SHA512Digest(), blockLength))
-      ..init(new Pbkdf2Parameters(_salt, iterationCount, desiredKeyLength));
-  }
+  PBKDF2({
+    this.blockLength = 128,
+    this.iterationCount = 2048,
+    this.desiredKeyLength = 64,
+  }) : _derivator =
+            new PBKDF2KeyDerivator(new HMac(new SHA512Digest(), blockLength));
 
-  Uint8List process(String mnemonic) {
+  Uint8List process(String mnemonic, {passphrase: ""}) {
+    final salt = Uint8List.fromList(utf8.encode(saltPrefix + passphrase));
+    _derivator.reset();
+    _derivator
+        .init(new Pbkdf2Parameters(salt, iterationCount, desiredKeyLength));
     return _derivator.process(new Uint8List.fromList(mnemonic.codeUnits));
   }
 }
