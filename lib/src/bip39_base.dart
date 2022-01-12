@@ -74,10 +74,11 @@ String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}
   final regex = new RegExp(r".{1,11}", caseSensitive: false, multiLine: false);
   final chunks = regex
       .allMatches(bits)
-      .map((match) => match.group(0)!)
+      .map((match) => match.group(0))
       .toList(growable: false);
-  List<String> wordlist = WORDLIST[language];
-  String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
+  if (!WORDLIST.containsKey(language)) throw new Exception("Invalid Language");
+  List<String> wordlist = WORDLIST[language]!;
+  String words = chunks.map((binary) => wordlist[_binaryToByte(binary!)]).join(' ');
   return words;
 }
 
@@ -104,7 +105,8 @@ String mnemonicToEntropy (mnemonic,{String language=_defaultLanguage}) {
   if (words.length % 3 != 0) {
     throw new ArgumentError(_INVALID_MNEMONIC);
   }
-  final wordlist = WORDLIST[language];
+  if (!WORDLIST.containsKey(language)) throw new Exception("Invalid Language");
+  final List<String> wordlist = WORDLIST[language]!;
     // convert word indices to 11 bit binary strings
     final bits = words.map((word) {
       final index = wordlist.indexOf(word);

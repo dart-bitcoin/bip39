@@ -34,7 +34,7 @@ String _bytesToBinary(Uint8List bytes) {
 String _deriveChecksumBits(Uint8List entropy) {
   final ENT = entropy.length * 8;
   final CS = ENT ~/ 32;
-  final hash = sha256.newInstance().convert(entropy);
+  final hash = sha256.convert(entropy);
   return _bytesToBinary(Uint8List.fromList(hash.bytes)).substring(0, CS);
 }
 
@@ -57,7 +57,7 @@ String generateMnemonic({
   return entropyToMnemonic(HEX.encode(entropy),language: language);
 }
 String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}) {
-  final entropy = HEX.decode(entropyString);
+  final entropy = Uint8List.fromList(HEX.decode(entropyString));
   if (entropy.length < 4) {
     throw ArgumentError(_INVALID_ENTROPY);
   }
@@ -75,18 +75,17 @@ String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}
       .allMatches(bits)
       .map((match) => match.group(0))
       .toList(growable: false);
-  print("***************");
-  print(language);
-  List<String> wordlist = WORDLIST[language];
-  String words = chunks.map((binary) => wordlist[_binaryToByte(binary)]).join(' ');
+  if (!WORDLIST.containsKey(language)) throw new Exception("Invalid Language");
+  List<String> wordlist = WORDLIST[language]!;
+  String words = chunks.map((binary) => wordlist[_binaryToByte(binary!)]).join(' ');
   return words;
 }
-Uint8List mnemonicToSeed(String mnemonic) {
+Uint8List mnemonicToSeed(String mnemonic, {String passphrase = ""}) {
   final pbkdf2 = new PBKDF2();
-  return pbkdf2.process(mnemonic);
+  return pbkdf2.process(mnemonic,passphrase:passphrase);
 }
-String mnemonicToSeedHex(String mnemonic) {
-  return mnemonicToSeed(mnemonic).map((byte) {
+String mnemonicToSeedHex(String mnemonic, {String passphrase = ""}) {
+  return mnemonicToSeed(mnemonic,passphrase:passphrase).map((byte) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
@@ -103,7 +102,8 @@ String mnemonicToEntropy (mnemonic,{String language=_defaultLanguage}) {
   if (words.length % 3 != 0) {
     throw new ArgumentError(_INVALID_MNEMONIC);
   }
-  final wordlist = WORDLIST[language];
+  if (!WORDLIST.containsKey(language)) throw new Exception("Invalid Language");
+  final List<String> wordlist = WORDLIST[language]!;
     // convert word indices to 11 bit binary strings
     final bits = words.map((word) {
       final index = wordlist.indexOf(word);
@@ -121,7 +121,7 @@ String mnemonicToEntropy (mnemonic,{String language=_defaultLanguage}) {
   final regex = RegExp(r".{1,8}");
   final entropyBytes = Uint8List.fromList(regex
       .allMatches(entropyBits)
-      .map((match) => _binaryToByte(match.group(0)))
+      .map((match) => _binaryToByte(match.group(0)!))
       .toList(growable: false));
   if (entropyBytes.length < 4) {
     throw StateError(_INVALID_ENTROPY);
