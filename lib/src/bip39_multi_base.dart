@@ -1,9 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:crypto/crypto.dart' show sha256;
 import 'package:hex/hex.dart';
-
 import 'utils/pbkdf2.dart';
 import 'wordlists/all.dart';
 
@@ -31,12 +30,14 @@ String _bytesToBinary(Uint8List bytes) {
 //  return ret;
 //}
 
+
 String _deriveChecksumBits(Uint8List entropy) {
   final ENT = entropy.length * 8;
   final CS = ENT ~/ 32;
   final hash = sha256.convert(entropy);
   return _bytesToBinary(Uint8List.fromList(hash.bytes)).substring(0, CS);
 }
+
 
 Uint8List _randomBytes(int size) {
   final rng = Random.secure();
@@ -46,7 +47,6 @@ Uint8List _randomBytes(int size) {
   }
   return bytes;
 }
-
 String generateMnemonic({
   int strength = 128,
   RandomBytes randomBytes = _randomBytes,
@@ -56,7 +56,6 @@ String generateMnemonic({
   final entropy = randomBytes(strength ~/ 8);
   return entropyToMnemonic(HEX.encode(entropy),language: language);
 }
-
 String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}) {
   final entropy = Uint8List.fromList(HEX.decode(entropyString));
   if (entropy.length < 4) {
@@ -81,14 +80,12 @@ String entropyToMnemonic(String entropyString,{String language=_defaultLanguage}
   String words = chunks.map((binary) => wordlist[_binaryToByte(binary!)]).join(' ');
   return words;
 }
-
 Uint8List mnemonicToSeed(String mnemonic, {String passphrase = ""}) {
   final pbkdf2 = new PBKDF2();
-  return pbkdf2.process(mnemonic, passphrase: passphrase);
+  return pbkdf2.process(mnemonic,passphrase:passphrase);
 }
-
 String mnemonicToSeedHex(String mnemonic, {String passphrase = ""}) {
-  return mnemonicToSeed(mnemonic, passphrase: passphrase).map((byte) {
+  return mnemonicToSeed(mnemonic,passphrase:passphrase).map((byte) {
     return byte.toRadixString(16).padLeft(2, '0');
   }).join('');
 }
@@ -120,7 +117,7 @@ String mnemonicToEntropy (mnemonic,{String language=_defaultLanguage}) {
   final entropyBits = bits.substring(0, dividerIndex);
   final checksumBits = bits.substring(dividerIndex);
 
-  // calculate the checksum and compare
+    // calculate the checksum and compare
   final regex = RegExp(r".{1,8}");
   final entropyBytes = Uint8List.fromList(regex
       .allMatches(entropyBits)

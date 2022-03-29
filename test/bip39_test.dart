@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:hex/hex.dart';
+import '../lib/bip39_multi.dart' as bip39;
 import 'package:test/test.dart';
 
 void main() {
