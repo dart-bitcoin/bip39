@@ -7,7 +7,7 @@ import 'package:hex/hex.dart';
 import 'utils/pbkdf2.dart';
 import 'wordlists/english.dart';
 
-const int _SIZE_BYTE = 255;
+const int _SIZE_BYTE = 256;
 const _INVALID_MNEMONIC = 'Invalid mnemonic';
 const _INVALID_ENTROPY = 'Invalid entropy';
 const _INVALID_CHECKSUM = 'Invalid mnemonic checksum';
